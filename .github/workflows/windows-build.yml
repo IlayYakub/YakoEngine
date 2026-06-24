@@ -1,0 +1,50 @@
+name: Build-Debug-Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-2022
+    strategy:
+      matrix:
+          config: [debug, release]
+      fail-fast: false
+
+    steps:
+      - name: Install code
+        uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Install CMake
+        run: pip install cmake
+
+      - name: Install Conan
+        run: pip install conan
+
+      - name: Install clang-format
+        run: pip install clang-format
+
+      - name: Verify installations
+        run: |
+          python --version
+          cmake --version
+          conan --version
+          clang-format --version
+
+      - name: Build ${{ matrix.config }}
+        working-directory: Scripts/Windows
+        shell: cmd
+        run: |
+          build-${{ matrix.config }}.bat
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.config }}
+          path: Build/
