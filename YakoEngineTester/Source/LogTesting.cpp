@@ -1,20 +1,25 @@
 #include <gtest/gtest.h>
 #include <YakoEngine.h>
 
+using namespace YakoEngine;
+
+namespace LogTesting
+{
+
 TEST(LogTest, DuplicateCreationReturnsError)
 {
-    YakoEngine::EngineSettings settings;
-    YakoEngine::Engine         engine(settings);
+    EngineSettings settings;
+    Engine         engine(settings);
 
-    auto duplicate_result = YakoEngine::Log::CreateInstance();
+    auto duplicate_result = Log::CreateInstance();
 
-    EXPECT_EQ(duplicate_result.error(), YakoEngine::SingletonWarnings::COMMAND_IGNORED);
+    EXPECT_EQ(duplicate_result.error(), SingletonWarnings::COMMAND_IGNORED);
 }
 
 TEST(LogTest, LoggingMacrosExecuteWithoutCrashing)
 {
-    YakoEngine::EngineSettings settings;
-    YakoEngine::Engine         engine(settings);
+    EngineSettings settings;
+    Engine         engine(settings);
 
     EXPECT_NO_FATAL_FAILURE({
         YAKO_TRACE(TestCategory, "Test trace with arg: {}", 42);
@@ -22,3 +27,5 @@ TEST(LogTest, LoggingMacrosExecuteWithoutCrashing)
         YAKO_WARN(System, "Testing warning behavior");
     });
 }
+
+}  // namespace LogTesting

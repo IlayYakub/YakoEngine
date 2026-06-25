@@ -47,6 +47,19 @@ jobs:
         run: |
           build-${{ matrix.config }}.bat
 
+      - name: Setup Mesa3D (Software OpenGL)
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/pal1000/mesa-dist-win/releases/download/23.1.9/mesa3d-23.1.9-release-msvc.7z" -OutFile mesa3d.7z
+          & "C:\Program Files\7-Zip\7z.exe" x mesa3d.7z -omesa
+
+          $target = "${{github.workspace}}\Build\Bin\Runtime\${{matrix.config}}"
+          Copy-Item -Force "mesa\x64\opengl32.dll" $target
+          Copy-Item -Force "mesa\x64\libglapi.dll" $target
+          Copy-Item -Force "mesa\x64\libgallium_wgl.dll" $target
+
+          "GALLIUM_DRIVER=llvmpipe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
       - name: Run Tests
         run: ${{github.workspace}}/Build/Bin/Runtime/${{matrix.config}}/${{matrix.target}}.exe --gtest_output=xml:"${{env.TEST_REPORT_PATH}}"
 
