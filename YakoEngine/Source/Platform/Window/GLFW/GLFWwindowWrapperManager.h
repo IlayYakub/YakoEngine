@@ -17,9 +17,11 @@ public:
     [[nodiscard]] virtual std::expected<WindowId, WindowManagerErrors> CreateWindow(
         const WindowSettings& settings
     ) override;
-    [[nodiscard]] virtual std::shared_ptr<IWindow> GetWindowById(const WindowId& id) override;
-    [[nodiscard]] virtual bool                     AreAllWindowsClosed() const override;
-    virtual void                                   OnUpdate() override;
+    [[nodiscard]] virtual std::expected<std::shared_ptr<IWindow>, WindowManagerErrors> GetWindowById(
+        const WindowId& id
+    ) override;
+    [[nodiscard]] virtual bool AreAllWindowsClosed() const override;
+    virtual void               OnUpdate() override;
 
 private:
     void CleanupClosedWindows();

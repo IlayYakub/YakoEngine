@@ -11,7 +11,7 @@ jobs:
       matrix:
         config: [debug, release]
         target:
-          - YakoEngineTester
+          - YakoEngineLibTester
 
     env:
       TEST_REPORT_PATH: ${{github.workspace}}/Build/Bin/${{matrix.target}}-report.xml

@@ -1,4 +1,7 @@
 #include "Platform/Window/GLFW/GLFWwindowWrapper.h"
+#include "Core/Event/WindowEvents.h"
+#include "Core/Event/KeyboardEvents.h"
+#include "Core/Event/MouseEvents.h"
 #include "Core/Log/Log.h"
 
 #include <GLFW/glfw3.h>
@@ -9,6 +12,7 @@ namespace YakoEngine
 GLFWwindowWrapper::GLFWwindowWrapper(const WindowSettings& settings, const WindowId& id)
     : IWindow(settings, id)
 {
+    // Window creation
     m_window = glfwCreateWindow(settings.m_width, settings.m_height, settings.m_title.c_str(), nullptr, nullptr);
 
     if (!m_window)
@@ -24,6 +28,165 @@ GLFWwindowWrapper::GLFWwindowWrapper(const WindowSettings& settings, const Windo
     }
 
     glfwSetWindowPos(m_window, settings.m_xPos, settings.m_yPos);
+
+    // Callbacks
+    glfwSetWindowUserPointer(m_window, this);
+
+    // Window
+    // Window close
+    glfwSetWindowCloseCallback(
+        m_window,
+        [](GLFWwindow* window)
+        {
+            GLFWwindowWrapper* windowWrapper = static_cast<GLFWwindowWrapper*>(glfwGetWindowUserPointer(window));
+            if (const auto& engineCallback = windowWrapper->GetEngineCallback(); engineCallback)
+            {
+                WindowCloseEvent event{};
+                engineCallback(event);
+            }
+        }
+    );
+
+    // Window framebuffer resize
+    glfwSetFramebufferSizeCallback(
+        m_window,
+        [](GLFWwindow* window, int width, int height)
+        {
+            GLFWwindowWrapper* windowWrapper = static_cast<GLFWwindowWrapper*>(glfwGetWindowUserPointer(window));
+            if (const auto& engineCallback = windowWrapper->GetEngineCallback(); engineCallback)
+            {
+                WindowFramebufferResizeEvent event{width, height};
+                engineCallback(event);
+            }
+        }
+    );
+
+    // Window pos
+    glfwSetWindowPosCallback(
+        m_window,
+        [](GLFWwindow* window, int xpos, int ypos)
+        {
+            GLFWwindowWrapper* windowWrapper = static_cast<GLFWwindowWrapper*>(glfwGetWindowUserPointer(window));
+            if (const auto& engineCallback = windowWrapper->GetEngineCallback(); engineCallback)
+            {
+                WindowMoveEvent event{xpos, ypos};
+                engineCallback(event);
+            }
+        }
+    );
+
+    // Keyboard
+    // Key press/release
+    glfwSetKeyCallback(
+        m_window,
+        [](GLFWwindow* window, int key, int /*scancode*/, int action, int /*mods*/)
+        {
+            GLFWwindowWrapper* windowWrapper = static_cast<GLFWwindowWrapper*>(glfwGetWindowUserPointer(window));
+            if (const auto& engineCallback = windowWrapper->GetEngineCallback(); engineCallback)
+            {
+                switch (action)
+                {
+                    case GLFW_PRESS:
+                    {
+                        KeyPressedEvent event{key, false};
+                        engineCallback(event);
+                        break;
+                    }
+
+                    case GLFW_REPEAT:
+                    {
+                        KeyPressedEvent event{key, true};
+                        engineCallback(event);
+                        break;
+                    }
+
+                    case GLFW_RELEASE:
+                    {
+                        KeyReleasedEvent event{key};
+                        engineCallback(event);
+                        break;
+                    }
+
+                    default:
+                        break;
+                }
+            }
+        }
+    );
+
+    // Character input
+    glfwSetCharCallback(
+        m_window,
+        [](GLFWwindow* window, unsigned int codepoint)
+        {
+            GLFWwindowWrapper* windowWrapper = static_cast<GLFWwindowWrapper*>(glfwGetWindowUserPointer(window));
+            if (const auto& engineCallback = windowWrapper->GetEngineCallback(); engineCallback)
+            {
+                KeyTypedEvent event{static_cast<int>(codepoint)};
+                engineCallback(event);
+            }
+        }
+    );
+
+    // Mouse
+    // Mouse button
+    glfwSetMouseButtonCallback(
+        m_window,
+        [](GLFWwindow* window, int button, int action, int /*mods*/)
+        {
+            GLFWwindowWrapper* windowWrapper = static_cast<GLFWwindowWrapper*>(glfwGetWindowUserPointer(window));
+            if (const auto& engineCallback = windowWrapper->GetEngineCallback(); engineCallback)
+            {
+                switch (action)
+                {
+                    case GLFW_PRESS:
+                    {
+                        MouseButtonPressedEvent event{button};
+                        engineCallback(event);
+                        break;
+                    }
+
+                    case GLFW_RELEASE:
+                    {
+                        MouseButtonReleasedEvent event{button};
+                        engineCallback(event);
+                        break;
+                    }
+
+                    default:
+                        break;
+                }
+            }
+        }
+    );
+
+    // Mouse move
+    glfwSetCursorPosCallback(
+        m_window,
+        [](GLFWwindow* window, double xpos, double ypos)
+        {
+            GLFWwindowWrapper* windowWrapper = static_cast<GLFWwindowWrapper*>(glfwGetWindowUserPointer(window));
+            if (const auto& engineCallback = windowWrapper->GetEngineCallback(); engineCallback)
+            {
+                MouseMovedEvent event{xpos, ypos};
+                engineCallback(event);
+            }
+        }
+    );
+
+    // Mouse scroll
+    glfwSetScrollCallback(
+        m_window,
+        [](GLFWwindow* window, double xoffset, double yoffset)
+        {
+            GLFWwindowWrapper* windowWrapper = static_cast<GLFWwindowWrapper*>(glfwGetWindowUserPointer(window));
+            if (const auto& engineCallback = windowWrapper->GetEngineCallback(); engineCallback)
+            {
+                MouseScrolledEvent event{xoffset, yoffset};
+                engineCallback(event);
+            }
+        }
+    );
 
     YAKO_INFO(
         Window, "Successfully created GLFW window '{}' (ID: {})", settings.m_title, static_cast<unsigned int>(id)

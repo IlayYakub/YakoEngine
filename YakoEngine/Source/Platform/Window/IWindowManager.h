@@ -11,7 +11,8 @@ namespace YakoEngine
 enum class WindowManagerErrors
 {
     NOT_INITIALIZED,
-    CANT_CREATE_WINDOW
+    CANT_CREATE_WINDOW,
+    WINDOW_NOT_FOUND
 };
 
 class IWindowManager
@@ -21,13 +22,16 @@ public:
     virtual ~IWindowManager() = default;
 
     [[nodiscard]] virtual std::expected<WindowId, WindowManagerErrors> CreateWindow(const WindowSettings& settings) = 0;
-    [[nodiscard]] virtual std::shared_ptr<IWindow>                     GetWindowById(const WindowId& id)            = 0;
-    [[nodiscard]] virtual bool                                         AreAllWindowsClosed() const                  = 0;
-    virtual void                                                       OnUpdate()                                   = 0;
+    [[nodiscard]] virtual std::expected<std::shared_ptr<IWindow>, WindowManagerErrors> GetWindowById(
+        const WindowId& id
+    )                                                      = 0;
+    [[nodiscard]] virtual bool AreAllWindowsClosed() const = 0;
+    virtual void               OnUpdate()                  = 0;
 
 protected:
-    bool     m_initialized{false};
-    WindowId m_nextWindowId{0};
+    EngineCallback m_engineCallback;
+    bool           m_initialized{false};
+    WindowId       m_nextWindowId{0};
 };
 
 }  // namespace YakoEngine

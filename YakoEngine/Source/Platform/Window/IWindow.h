@@ -1,10 +1,14 @@
 #pragma once
 
+#include "Core/Event/Event.h"
+
 #include <string>
 #include <functional>
 
 namespace YakoEngine
 {
+
+using EngineCallback = std::function<void(Event& event)>;
 
 struct WindowId final
 {
@@ -53,6 +57,8 @@ public:
     }
     virtual ~IWindow() = default;
 
+    void SetEngineCallback(const EngineCallback& callback) { m_engineCallback = callback; }
+    [[nodiscard]] const EngineCallback& GetEngineCallback() const { return m_engineCallback; }
     [[nodiscard]] const WindowId&       GetId() const { return m_id; }
     [[nodiscard]] const WindowSettings& GetSettings() const { return m_settings; }
 
@@ -64,6 +70,7 @@ public:
     virtual void                Close()                 = 0;
 
 protected:
+    EngineCallback m_engineCallback;
     WindowSettings m_settings{};
     WindowId       m_id{0};
 };

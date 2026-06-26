@@ -6,20 +6,15 @@ using namespace YakoEngine;
 namespace LogTesting
 {
 
-TEST(LogTest, DuplicateCreationReturnsError)
+TEST(LogSystemTest, Core)
 {
-    EngineSettings settings;
-    Engine         engine(settings);
+    EngineSettings defaultEngineSettings;
+    Engine         engine(defaultEngineSettings);
 
-    auto duplicate_result = Log::CreateInstance();
+    auto duplicateInitializationResult = Log::CreateInstance();
 
-    EXPECT_EQ(duplicate_result.error(), SingletonWarnings::COMMAND_IGNORED);
-}
-
-TEST(LogTest, LoggingMacrosExecuteWithoutCrashing)
-{
-    EngineSettings settings;
-    Engine         engine(settings);
+    EXPECT_FALSE(duplicateInitializationResult.has_value());
+    EXPECT_EQ(duplicateInitializationResult.error(), SingletonWarnings::COMMAND_IGNORED);
 
     EXPECT_NO_FATAL_FAILURE({
         YAKO_TRACE(TestCategory, "Test trace with arg: {}", 42);

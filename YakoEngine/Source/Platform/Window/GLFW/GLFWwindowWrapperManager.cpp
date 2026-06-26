@@ -44,7 +44,7 @@ std::expected<WindowId, WindowManagerErrors> GLFWwindowWrapperManager::CreateWin
         return std::unexpected(WindowManagerErrors::NOT_INITIALIZED);
     }
 
-    auto window = std::make_shared<GLFWwindowWrapper>(settings, m_nextWindowId);
+    const auto& window = std::make_shared<GLFWwindowWrapper>(settings, m_nextWindowId);
     if (!window->IsValid())
     {
         YAKO_ERROR(Window, "Failed to create window '{}', window is not valid!", settings.m_title);
@@ -58,19 +58,22 @@ std::expected<WindowId, WindowManagerErrors> GLFWwindowWrapperManager::CreateWin
         YAKO_ERROR(Window, "Failed to insert window '{}' into manager map!", settings.m_title);
         return std::unexpected(WindowManagerErrors::CANT_CREATE_WINDOW);
     }
+    it->second->SetEngineCallback(m_engineCallback);
 
     ++m_nextWindowId;
     return currentWindowId;
 }
 
-std::shared_ptr<IWindow> GLFWwindowWrapperManager::GetWindowById(const WindowId& id)
+std::expected<std::shared_ptr<IWindow>, WindowManagerErrors> GLFWwindowWrapperManager::GetWindowById(const WindowId& id)
 {
     auto it = m_windowWrappers.find(id);
+
     if (it == m_windowWrappers.end())
     {
         YAKO_WARN(Window, "Window with ID {} not found!", static_cast<unsigned int>(id));
-        return nullptr;
+        return std::unexpected(WindowManagerErrors::WINDOW_NOT_FOUND);
     }
+
     return it->second;
 }
 

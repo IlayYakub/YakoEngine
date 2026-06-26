@@ -1,25 +1,56 @@
 #include <YakoEngine.h>
 
+class MenuLayer final : public YakoEngine::Layer
+{
+public:
+    explicit MenuLayer(const std::string& layerName)
+        : YakoEngine::Layer(layerName)
+    {
+    }
+
+    void OnAttach() override {}
+    void OnDetach() override {}
+    void OnUpdate() override {}
+    void OnEvent(YakoEngine::Event& event) override
+    {
+        USER_INFO(MenuLayer, "{}", event.ToString());
+        event.SetHandled(false);
+    }
+};
+
+class GameplayLayer final : public YakoEngine::Layer
+{
+public:
+    explicit GameplayLayer(const std::string& layerName)
+        : YakoEngine::Layer(layerName)
+    {
+    }
+
+    void OnAttach() override {}
+    void OnDetach() override {}
+    void OnUpdate() override {}
+    void OnEvent(YakoEngine::Event& event) override
+    {
+        USER_INFO(GameplayLayer, "{}", event.ToString());
+        event.SetHandled(true);
+    }
+};
+
 int main()
 {
+    // Engine setup
     YakoEngine::EngineSettings settings;
     YakoEngine::Engine         engine(settings);
 
-    YakoEngine::WindowSettings window1Settings{};
+    // Layer setup
+    engine.PushLayer(std::make_unique<GameplayLayer>("GameplayLayer"));
+    engine.PushLayer(std::make_unique<MenuLayer>("MenuLayer"));
 
-    if (auto creation_res = engine.CreateWindow(window1Settings); creation_res.has_value())
+    // Main window
+    YakoEngine::WindowSettings windowSettings{};
+    auto                       windowCreationResult = engine.CreateWindow(windowSettings);
+    if (windowCreationResult.has_value())
     {
-        auto windowId   = creation_res.value();
-        auto window_res = engine.GetWindowById(windowId);
-
-        if (window_res.has_value())
-        {
-            auto window = window_res.value();
-            window->Hide();
-            window->Open();
-            window->Close();
-        }
-
         engine.Run();
     }
 
