@@ -17,6 +17,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Bin/Library/$<CONFIG>)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Bin/Library/$<CONFIG>)
 
 # Options
+option(CXX_SANDBOX "Build YakoCxx" ON)
 option(ENGINE_BUILD "Build Engine and EngineTester" ON)
 option(ENGINE_BUILD_SANDBOX "Build SandBox" ON)
 option(ENGINE_BUILD_GAMES "Build Games based on Engine" ON)
@@ -33,4 +34,8 @@ endif()
 
 if(ENGINE_BUILD_GAMES)
 	add_subdirectory(Games)
+endif()
+
+if(CXX_SANDBOX)
+	add_subdirectory(YakoCxx)
 endif()

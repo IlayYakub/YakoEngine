@@ -7,6 +7,7 @@ file(GLOB_RECURSE Source RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 	*.hpp
 	*.cpp
 	*.txt
+	*.cmake
 )
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${Source})
 
@@ -15,3 +16,5 @@ add_executable(TerminalSnakeGame ${Source})
 set_target_properties(TerminalSnakeGame PROPERTIES FOLDER "Games")
 target_include_directories(TerminalSnakeGame PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Source)
 target_link_libraries(TerminalSnakeGame PRIVATE YakoEngineLib)
+
+include(TerminalSnakeGameDependencies.cmake)
